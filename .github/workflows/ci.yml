@@ -14,6 +14,7 @@ jobs:
     - run: npm install
     - run: npm install -g @angular/cli > /dev/null
     - run: ng build --prod --output-path=dist --base-href="https://compactmods.github.io/site/"
+    - run: cp CNAME dist/CNAME
     - name: Publish generated content to GitHub Pages
       uses: crazy-max/ghaction-github-pages@v2.3.0
       with:
