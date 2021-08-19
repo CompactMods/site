@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import { CfWidgetService } from '../cfwidget.service';
+import { CfWidgetResponse } from '../data/cfwidget';
 
 @Component({
   selector: 'curseforge-card',
@@ -14,13 +15,14 @@ export class CurseforgeCardComponent implements OnInit {
   public loaded: boolean = false;
   
   faGithub = faGithub;
-  
+  public cfData?: CfWidgetResponse;
+
   constructor(private cfw: CfWidgetService) {
   }
 
   ngOnInit(): void {
     this.cfw.fetchData(this.cf).subscribe((data) => {
-      console.debug(data);
+      this.cfData = data;
       this.loaded = true;
     }, (err) => {
       console.debug(err);
@@ -36,4 +38,7 @@ export class CurseforgeCardComponent implements OnInit {
     return `https://cf.way2muchnoise.eu/versions/${this.cf}_latest.svg`;
   }
 
+  public get hasCfUrl() {
+    return this.cfData?.urls?.curseforge;
+  }
 }

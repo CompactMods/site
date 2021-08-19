@@ -1,5 +1,13 @@
 export class CfWidgetResponse {
-    id: number = 0;
-    summary: string = "";
-    thumbnail: string = "";
+    public id: number = 0;
+    public title: string = "";
+    public summary: string = "";
+    public thumbnail: string = "";
+
+    public urls?: CfWidgetUrlSet;
+}
+
+export class CfWidgetUrlSet {
+    public curseforge: string = "";
+    public project: string = "";
 }
