@@ -1,0 +1,118 @@
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+@if (Loaded && CurseforgeData != null)
+{
+    <div class="curseforge-card">
+        <div class="cf-card-header">
+            <img src="@CurseforgeData.Thumbnail" class="thumbnail" />
+            <div>
+                <div class="cf-title">@CurseforgeData.Title</div>
+                <div class="cf-swatches">
+                    @if (AvailableForSvg != null)
+                    {
+                        <img src="@AvailableForSvg" />
+                    }
+
+                    @if (DownloadSvg != null)
+                    {
+                        <img src="@DownloadSvg" />
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="cf-summary">@CurseforgeData.Summary</div>
+
+        <div class="cf-actions">
+            @if (CurseforgeData.Urls?.Curseforge is not null)
+            {
+                <button type="button" class="cf-download" @onclick="NavCurseforge">
+                    <span>
+                        <object type="image/svg+xml" data="/curseforge.svg" class="cf-logo">
+                            <img src="/curseforge.svg" />
+                        </object>
+                    </span>
+                    <span>Curseforge</span>
+                </button>
+            }
+        </div>
+    </div>
+
+    @*
+        <mat-card-actions>
+        <a mat-flat-button class="cfDownloadBtn" [href]="cfData?.urls?.curseforge" *ngIf="hasCfUrl" target="_blank">
+        <mat-icon class="cfDownloadIcon" svgIcon="curseforge"></mat-icon>
+        Curseforge
+        </a>
+        </mat-card-actions>*@
+}
+else
+{
+    <div>Loading...</div>
+}
+
+@code {
+    public bool Loaded { get; set; } = false;
+
+    [Parameter]
+    public string Project { get; set; } = "";
+
+    public CfWidgetResponse? CurseforgeData { get; set; }
+    public Uri? DownloadSvg { get; set; }
+    public Uri? AvailableForSvg { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Project))
+        {
+            try
+            {
+                this.DownloadSvg = new Uri($"https://cf.way2muchnoise.eu/{Project}.svg"); ;
+                this.AvailableForSvg = new Uri($"https://cf.way2muchnoise.eu/versions/{Project}_latest.svg");
+
+                HttpRequestMessage m = new()
+                    {
+                        Method = HttpMethod.Get
+                    };
+                m.SetBrowserRequestCredentials(BrowserRequestCredentials.Omit);
+                m.RequestUri = new Uri($"https://api.cfwidget.com/{Project}");
+
+                var r = await Http.SendAsync(m);
+                if (r.IsSuccessStatusCode)
+                {
+                    this.CurseforgeData = await r.Content.ReadFromJsonAsync<CfWidgetResponse>();
+                }
+            }
+
+            catch (Exception e)
+            {
+
+            }
+        }
+
+        Loaded = true;
+        this.StateHasChanged();
+    }
+
+    public void NavCurseforge()
+    {
+        if (CurseforgeData != null) Nav.NavigateTo(CurseforgeData.Urls.Curseforge.AbsoluteUri);
+    }
+
+    public class CfWidgetResponse
+    {
+        public uint ID { get; set; }
+        public string Title { get; set; }
+        public string Summary { get; set; }
+        public string Thumbnail { get; set; }
+
+        public CfWidgetUrlSet Urls { get; set; }
+    }
+
+    public class CfWidgetUrlSet
+    {
+        public Uri Curseforge { get; set; }
+        public Uri Project { get; set; }
+    }
+}

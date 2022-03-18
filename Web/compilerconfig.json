@@ -1,0 +1,22 @@
+﻿[
+  {
+    "outputFile": "Pages/Index.razor.css",
+    "inputFile": "Pages/Index.razor.scss"
+  },
+  {
+    "outputFile": "Shared/NavMenu.razor.css",
+    "inputFile": "Shared/NavMenu.razor.scss"
+  },
+  {
+    "outputFile": "Components/CurseforgeCard.razor.css",
+    "inputFile": "Components/CurseforgeCard.razor.scss"
+  },
+  {
+    "outputFile": "wwwroot/style/app.css",
+    "inputFile": "wwwroot/style/app.scss"
+  },
+  {
+    "outputFile": "wwwroot/style/roboto.css",
+    "inputFile": "wwwroot/style/roboto.scss"
+  }
+]

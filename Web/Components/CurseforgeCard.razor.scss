@@ -1,0 +1,71 @@
+div.curseforge-card {
+  box-shadow: black 2px 2px 5px;
+  border-radius: 4px;
+  padding: 1em;
+  margin-bottom: 1em;
+  font-family: Roboto,Helvetica Neue,sans-serif;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+div.curseforge-card img.thumbnail {
+  width: 4em;
+  height: 4em;
+  border-radius: 100%;
+  overflow: hidden;
+  border: 1px solid black;
+  margin-right: 1em;
+}
+
+.cf-card-header {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: .5em;
+}
+
+.cf-summary {
+  flex-grow: 1;
+  margin: .5em 0;
+}
+
+.cf-title {
+  font-weight: bold;
+  font-size: 1.4em;
+}
+
+.cf-swatches {
+  display: flex;
+  column-gap: 1em;
+}
+
+button.cf-download {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  border-radius: 4px;
+  background-color: white;
+  border: 1px solid black;
+  padding: 0.4em;
+
+  &:hover {
+    background-color: lighten(#f16436, 20);
+  }
+
+  span:first-child {
+    display: inline-block;
+    height: 1.1em;
+    vertical-align: middle;
+  }
+
+  object.cf-logo {
+    height: .7em;
+  }
+
+  a {
+    text-decoration: none;
+    color: black;
+    font-weight: 600;
+    padding: .4em;
+  }
+}

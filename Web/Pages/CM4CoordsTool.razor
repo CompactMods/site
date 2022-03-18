@@ -1,0 +1,39 @@
+@page "/cm4-coords"
+@using Web.Utility
+@using System.Numerics
+
+<label>Room Number:</label><br />
+<input type="number" id="roomId" pattern="[0-9]+" placeholder="Room #" @bind="room" @oninput="InputChanged" />
+
+<br /><br />
+<table>
+	<tr>
+		<th>Region: </th>
+		<td><span id="region">@region</span></td>
+	</tr>
+	<tr>
+		<th>Chunk: </th>
+		<td><span id="chunkpos">@chunkpos</span></td>
+	</tr>
+	<tr>
+		<th>Center: </th>
+		<td><span id="centerpos">@centerpos</span></td>
+	</tr>
+</table>
+
+@code {
+    private int room = 0;
+
+    private Vector3 region = Vector3.Zero;
+    private Vector3 chunkpos = Vector3.Zero;
+    private Vector3 centerpos = Vector3.Zero;
+
+    public void InputChanged(ChangeEventArgs args) {
+        this.room = int.TryParse((string) args.Value, out int t) ? t : 0;
+
+        this.region = Common.CalculateRegion(room);
+		this.chunkpos = region * 64;
+
+		this.centerpos = new Vector3((int) chunkpos.X << 4, (int) chunkpos.Y << 4, (int) chunkpos.Z << 4);
+    }
+}
