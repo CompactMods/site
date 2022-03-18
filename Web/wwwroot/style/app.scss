@@ -1,4 +1,3 @@
-@import "open-iconic/font/css/open-iconic-bootstrap.min.css";
 @import "roboto.scss";
 
 @import "fa/_functions";
@@ -7,9 +6,9 @@ $fa-font-path: "../font/awesome";
 
 @import "fa/_mixins";
 @import "fa/_core";
-@import "fa/brands.scss";
-@import "fa/regular.scss";
-@import "fa/solid.scss";
+@import "fa/_icons";
+@import "fa/brands";
+@import "fa/solid";
 
 @import "../boot/scss/functions";
 
