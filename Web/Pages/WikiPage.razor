@@ -1,7 +1,8 @@
 ﻿@page "/wiki/{project}/{route?}"
 @using Markdig
-@using Markdig.SyntaxHighlighting
+@using Markdig.Prism
 @using Web.Services
+
 @inject HttpClient Http
 @inject ProjectsService Projects
 
@@ -23,14 +24,27 @@ else
     }
     else
     {
-        @if (mdSource != null)
-        {
-            @((MarkupString) mdSource)
-        }
-        else
-        {
-            <p>Route not found; please check the URL and try again, or <a href="/wiki">go back to the wiki root</a>.</p>
-        }
+        <div class="wiki-page">
+            <nav class="wiki-nav">
+                <ul>
+                    @foreach (var p in ProjectPages.OrderBy(x => x.Slug))
+                    {
+                        <li><a href="/wiki/@Project/@p.Slug">@PrettyPageTitle(p)</a></li>
+                    }
+                </ul>
+            </nav>
+
+            <main class="wiki-main">
+                @if (mdSource != null)
+                {
+                    <Web.Components.Markdown Content="@mdSource" />
+                }
+                else
+                {
+                    <p>Route not found; please check the URL and try again, or <a href="/wiki">go back to the wiki root</a>.</p>
+                }
+            </main>
+        </div>
     }
 }
 
@@ -40,6 +54,8 @@ else
 
     [Parameter]
     public string? Route { get; set; }
+
+    public ICollection<ProjectsService.WikiPage> ProjectPages { get; set; } = Array.Empty<ProjectsService.WikiPage>();
 
     public string? mdSource;
 
@@ -52,7 +68,7 @@ else
         if (string.IsNullOrWhiteSpace(Route))
             Route = "home";
 
-        if(string.IsNullOrEmpty(Project))
+        if (string.IsNullOrEmpty(Project))
         {
             IsErrored = true;
             IsLoading = false;
@@ -61,7 +77,7 @@ else
         }
 
         var projList = await Projects.GetProjectSlugs();
-        if(!projList.Contains(Project, StringComparer.InvariantCultureIgnoreCase))
+        if (!projList.Contains(Project, StringComparer.InvariantCultureIgnoreCase))
         {
             IsErrored = true;
             IsLoading = false;
@@ -71,17 +87,34 @@ else
 
         if (!string.IsNullOrEmpty(Project) && !string.IsNullOrEmpty(Route))
         {
-            var source = $"wiki-pages/{Project}/{Route}.md";
-            var sourceStr = await Http.GetAsync(source);
-            if (sourceStr.IsSuccessStatusCode)
+            this.ProjectPages = await Projects.GetPagesForProject(Project.ToLower());
+            if (ProjectPages.Count == 0)
             {
-                var pl = new Markdig.MarkdownPipelineBuilder()
-                    .UseAdvancedExtensions()
-                    .UseSyntaxHighlighting()
-                    .Build();
+                IsErrored = true;
+                CustomError = "Requested page not found.";
+            }
+            else
+            {
+                var source = ProjectPages.Where(x => x.Slug.Equals(Route, StringComparison.InvariantCultureIgnoreCase)).ToArray();
+                if (source.Length == 0)
+                {
+                    IsErrored = true;
+                    CustomError = "Requested page not found.";
+                }
+                else
+                {
+                    var sourceStr = await Http.GetAsync($"wiki-pages/{Project}/{source[0].Original}");
+                    if (sourceStr.IsSuccessStatusCode)
+                    {
+                        var pl = new Markdig.MarkdownPipelineBuilder()
+                            .UseAdvancedExtensions()
+                            .UsePrism()
+                            .Build();
 
-                var mdSourceStr = await sourceStr.Content.ReadAsStringAsync();
-                mdSource = Markdown.ToHtml(mdSourceStr, pl);
+                        var mdSourceStr = await sourceStr.Content.ReadAsStringAsync();
+                        mdSource = Markdig.Markdown.ToHtml(mdSourceStr, pl);
+                    }
+                }
             }
 
             IsLoading = false;
@@ -91,5 +124,11 @@ else
             IsErrored = true;
             IsLoading = false;
         }
+    }
+
+    public string PrettyPageTitle(ProjectsService.WikiPage page)
+    {
+        var or = page.Original;
+        return or.Replace('-', ' ').Substring(0, or.Length - 3);
     }
 }

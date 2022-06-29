@@ -13,13 +13,17 @@ jobs:
     steps:
 
     - uses: actions/checkout@v2
-    
+ 
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v3.3.0
+
     # Wiki files: Compact Machines
     - uses: actions/checkout@v2
       with:
           repository: "compactmods/compactmachines.wiki"
           path: "Web/wwwroot/wiki-pages/machines"
     - run: rm -rf Web/wwwroot/wiki-pages/machines/.git
+    - run: node Web/wwwroot/wiki-pages/wiki-pages.js Web/wwwroot/wiki-pages/machines
 
     # Wiki files: Compact Crafting
     - uses: actions/checkout@v2
@@ -27,12 +31,15 @@ jobs:
           repository: "compactmods/compactcrafting.wiki"
           path: "Web/wwwroot/wiki-pages/crafting"
     - run: rm -rf Web/wwwroot/wiki-pages/crafting/.git
+    - run: node Web/wwwroot/wiki-pages/wiki-pages.js Web/wwwroot/wiki-pages/crafting
 
     # sets up .NET Core SDK 3.1
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '6.0.x'
+    
+
 
     # publishes Blazor project to the release-folder
     - name: Publish .NET Core Project

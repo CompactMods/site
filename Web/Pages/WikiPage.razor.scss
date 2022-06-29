@@ -1,0 +1,29 @@
+﻿div.wiki-page {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+nav.wiki-nav {
+    width: 30rem;
+    margin-right: 1.6rem;
+    padding: 1rem;
+    background-color: lightslategray;
+    color: white;
+    border-radius: .5rem;
+
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    li {
+        margin-bottom: .6em;
+    }
+
+    a {
+        text-decoration: none;
+        color: currentColor;
+    }
+}

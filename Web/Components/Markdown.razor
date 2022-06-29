@@ -1,0 +1,14 @@
+﻿<div class="markdown">
+    @((MarkupString) Content)
+</div>
+
+@inject IJSRuntime JS
+@code {
+    [Parameter]
+    public string Content { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("Prism.highlightAll");
+    }
+}

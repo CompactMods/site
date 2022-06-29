@@ -27,9 +27,24 @@ namespace Web.Services
             return Array.Empty<Project>();
         }
 
+        public async Task<ICollection<WikiPage>> GetPagesForProject(string project)
+        {
+            var root = await Client.GetAsync($"wiki-pages/{project}/project.json");
+            if (root.IsSuccessStatusCode && root.Content is not null)
+                return await root.Content.ReadFromJsonAsync<ICollection<WikiPage>>();
+
+            return Array.Empty<WikiPage>();
+        }
+
         public struct Project
         {
             public string Name { get; set; }
+            public string Slug { get; set; }
+        }
+
+        public struct WikiPage
+        {
+            public string Original { get; set; }
             public string Slug { get; set; }
         }
     }

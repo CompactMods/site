@@ -18,5 +18,17 @@
   {
     "outputFile": "wwwroot/style/roboto.css",
     "inputFile": "wwwroot/style/roboto.scss"
+  },
+  {
+    "outputFile": "Pages/WikiPage.razor.css",
+    "inputFile": "Pages/WikiPage.razor.scss"
+  },
+  {
+    "outputFile": "wwwroot/prism/prism.css",
+    "inputFile": "wwwroot/prism/prism.scss"
+  },
+  {
+    "outputFile": "Components/Markdown.razor.css",
+    "inputFile": "Components/Markdown.razor.scss"
   }
 ]
