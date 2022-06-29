@@ -1,0 +1,95 @@
+﻿@page "/wiki/{project}/{route?}"
+@using Markdig
+@using Markdig.SyntaxHighlighting
+@using Web.Services
+@inject HttpClient Http
+@inject ProjectsService Projects
+
+<PageTitle>Wiki</PageTitle>
+
+@if (IsErrored)
+{
+    <p>There was an error loading this page. Please reload the page to try again, or <a href="/wiki">go back to the wiki root</a>.</p>
+    @if (!string.IsNullOrEmpty(CustomError))
+    {
+        <p><b>Error:</b> @CustomError</p>
+    }
+}
+else
+{
+    @if (IsLoading)
+    {
+        <p>Loading page, please wait...</p>
+    }
+    else
+    {
+        @if (mdSource != null)
+        {
+            @((MarkupString) mdSource)
+        }
+        else
+        {
+            <p>Route not found; please check the URL and try again, or <a href="/wiki">go back to the wiki root</a>.</p>
+        }
+    }
+}
+
+@code {
+    [Parameter]
+    public string? Project { get; set; }
+
+    [Parameter]
+    public string? Route { get; set; }
+
+    public string? mdSource;
+
+    public bool IsErrored = false;
+    public bool IsLoading = true;
+    public string? CustomError;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Route))
+            Route = "home";
+
+        if(string.IsNullOrEmpty(Project))
+        {
+            IsErrored = true;
+            IsLoading = false;
+            CustomError = "No project found.";
+            return;
+        }
+
+        var projList = await Projects.GetProjectSlugs();
+        if(!projList.Contains(Project, StringComparer.InvariantCultureIgnoreCase))
+        {
+            IsErrored = true;
+            IsLoading = false;
+            CustomError = $"No project with the slug '{Project}' was found. Check the URL and try again.";
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(Project) && !string.IsNullOrEmpty(Route))
+        {
+            var source = $"wiki-pages/{Project}/{Route}.md";
+            var sourceStr = await Http.GetAsync(source);
+            if (sourceStr.IsSuccessStatusCode)
+            {
+                var pl = new Markdig.MarkdownPipelineBuilder()
+                    .UseAdvancedExtensions()
+                    .UseSyntaxHighlighting()
+                    .Build();
+
+                var mdSourceStr = await sourceStr.Content.ReadAsStringAsync();
+                mdSource = Markdown.ToHtml(mdSourceStr, pl);
+            }
+
+            IsLoading = false;
+        }
+        else
+        {
+            IsErrored = true;
+            IsLoading = false;
+        }
+    }
+}

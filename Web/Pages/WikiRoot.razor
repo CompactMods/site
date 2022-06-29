@@ -1,0 +1,36 @@
+﻿@page "/wiki";
+@using Web.Services
+@inject ProjectsService Projects
+
+<h1>Wiki Home</h1>
+
+@if (IsLoaded)
+{
+    @if (ProjectList.Count > 0)
+    {
+        <p>Please choose a mod to view its wiki pages:</p>
+        <ul>
+            @foreach (var proj in ProjectList)
+            {
+                <li><a href="/wiki/@proj.Slug">@proj.Name</a></li>
+            }
+        </ul>
+    } else
+    {
+        <p>There are no projects to list. Please try again later.</p>
+    }
+} else
+{
+    <p>Loading projects, please wait...</p>
+}
+
+@code {
+    public bool IsLoaded = false;
+    public ICollection<ProjectsService.Project> ProjectList = Array.Empty<ProjectsService.Project>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProjectList = await Projects.GetProjects();
+        IsLoaded = true;
+    }
+}
