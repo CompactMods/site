@@ -66,6 +66,13 @@ button.cf-download a[b-5jxruvctd3] {
   font-weight: 600;
   padding: 0.4em;
 }
+/* /Components/Markdown.razor.rz.scp.css */
+div.markdown pre[b-js1q71i047] {
+  display: block;
+  background-color: #2d2d2d !important;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
 /* /Pages/Index.razor.rz.scp.css */
 div#project-cards[b-jgsblyhduy] {
   display: grid;
@@ -74,6 +81,33 @@ div#project-cards[b-jgsblyhduy] {
   row-gap: 0.8rem;
   grid-auto-flow: row;
   margin-top: 2rem;
+}
+/* /Pages/WikiPage.razor.rz.scp.css */
+div.wiki-page[b-svudsauc6p] {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+nav.wiki-nav[b-svudsauc6p] {
+  width: 30rem;
+  margin-right: 1.6rem;
+  padding: 1rem;
+  background-color: lightslategray;
+  color: white;
+  border-radius: 0.5rem;
+}
+nav.wiki-nav ul[b-svudsauc6p] {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+nav.wiki-nav li[b-svudsauc6p] {
+  margin-bottom: 0.6em;
+}
+nav.wiki-nav a[b-svudsauc6p] {
+  text-decoration: none;
+  color: currentColor;
 }
 /* /Shared/MainLayout.razor.rz.scp.css */
 .page[b-s29s4s63jm] {
