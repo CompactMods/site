@@ -5,12 +5,14 @@
 }
 
 nav.wiki-nav {
-    width: 30rem;
+    width: max-content;
+    min-width: 17rem;
     margin-right: 1.6rem;
     padding: 1rem;
-    background-color: lightslategray;
+    background-color: darken(slategray, 25%);
     color: white;
     border-radius: .5rem;
+    height: fit-content;
 
     ul {
         list-style: none;

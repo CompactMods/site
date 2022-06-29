@@ -1,5 +1,5 @@
 ﻿/* PrismJS 1.28.0
-https://prismjs.com/download.html#themes=prism-tomorrow&languages=markup+clike+javascript+java+json+json5+toml&plugins=toolbar */
+https://prismjs.com/download.html#themes=prism-tomorrow&languages=markup+clike+javascript+java+json+json5+toml&plugins=toolbar+copy-to-clipboard */
 code[class*=language-], pre[class*=language-] {
   color: #ccc;
   background: 0 0;
