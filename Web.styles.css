@@ -90,12 +90,14 @@ div.wiki-page[b-svudsauc6p] {
 }
 
 nav.wiki-nav[b-svudsauc6p] {
-  width: 30rem;
+  width: max-content;
+  min-width: 17rem;
   margin-right: 1.6rem;
   padding: 1rem;
-  background-color: lightslategray;
+  background-color: #384048;
   color: white;
   border-radius: 0.5rem;
+  height: fit-content;
 }
 nav.wiki-nav ul[b-svudsauc6p] {
   list-style: none;
