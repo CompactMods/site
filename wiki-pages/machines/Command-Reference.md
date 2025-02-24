@@ -1,3 +1,4 @@
+
 # Eject
 Allows a player to escape a room they're trapped in, or allows an op to eject a trapped player.
 
