@@ -1,0 +1,77 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Web</RootNamespace>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="compilerconfig.json" />
+    <Content Remove="wwwroot\favicon.ico" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="wwwroot\android-chrome-192x192.png" />
+    <None Include="wwwroot\android-chrome-512x512.png" />
+    <None Include="wwwroot\apple-touch-icon.png" />
+    <None Include="wwwroot\favicon-16x16.png" />
+    <None Include="wwwroot\favicon-32x32.png" />
+    <None Include="wwwroot\favicon.ico" />
+    <None Include="wwwroot\site.webmanifest" />
+  </ItemGroup>
+
+  <!-- Hard-fingerprint site scripts so their index.html placeholders resolve to fingerprinted URLs on publish, not just build.
+       The placeholder rewriter only fingerprints scripts (via the import map); CSS placeholders resolve to plain names. -->
+  <ItemGroup>
+    <StaticWebAssetFingerprintPattern Include="SiteJs" Pattern="*.js" Expression="#[.{fingerprint}]!" />
+  </ItemGroup>
+
+  <!-- Wiki pages: /docs is served as static files under /wiki-pages, and indexed at startup by WikiService -->
+  <ItemGroup>
+    <WikiDoc Include="..\docs\**\*.md" WikiPath="$([System.String]::Copy('%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" RelativePath="wiki-pages/%(WikiPath)" Visible="false" />
+  </ItemGroup>
+
+  <Target Name="AddWikiStaticWebAssets" BeforeTargets="AssignTargetPaths" AfterTargets="ResolveProjectStaticWebAssets" Condition="'$(NoBuild)' != 'true'">
+    <DefineStaticWebAssets
+      CandidateAssets="@(WikiDoc)"
+      SourceType="Discovered"
+      SourceId="$(PackageId)"
+      ContentRoot="$(MSBuildProjectDirectory)\..\docs\"
+      BasePath="$(StaticWebAssetBasePath)"
+      AssetMergeSource="$(StaticWebAssetMergeTarget)">
+      <Output TaskParameter="Assets" ItemName="StaticWebAsset" />
+      <Output TaskParameter="Assets" ItemName="_WikiStaticWebAsset" />
+    </DefineStaticWebAssets>
+
+    <DefineStaticWebAssetEndpoints CandidateAssets="@(_WikiStaticWebAsset)" ContentTypeMappings="@(StaticWebAssetContentTypeMapping)">
+      <Output TaskParameter="Endpoints" ItemName="StaticWebAssetEndpoint" />
+    </DefineStaticWebAssetEndpoints>
+  </Target>
+
+  <Target Name="AddWikiIndex" BeforeTargets="GetAssemblyAttributes">
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>WikiPage</_Parameter1>
+        <_Parameter2>%(WikiDoc.WikiPath)</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="Markdig" Version="1.5.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.14" PrivateAssets="all" />
+    <PackageReference Include="WebStoating.Markdig.Prism" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Shared\NavMenu.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+
+</Project>
+ 

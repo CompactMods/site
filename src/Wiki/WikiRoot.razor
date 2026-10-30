@@ -4,13 +4,13 @@
 
 <h1>Wiki Home</h1>
 
-@if (IsLoaded)
+@if (_projectList is not null)
 {
-    @if (ProjectList.Count > 0)
+    if (_projectList.Count > 0)
     {
         <p>Please choose a mod to view its wiki pages:</p>
         <ul>
-            @foreach (var proj in ProjectList)
+            @foreach (var proj in _projectList)
             {
                 <li><a href="/wiki/@proj.Slug">@proj.Name</a></li>
             }
@@ -25,12 +25,10 @@
 }
 
 @code {
-    public bool IsLoaded = false;
-    public ICollection<ProjectsService.Project> ProjectList = Array.Empty<ProjectsService.Project>();
+    private ICollection<ProjectsService.Project>? _projectList;
 
     protected override async Task OnInitializedAsync()
     {
-        ProjectList = await Projects.GetProjects();
-        IsLoaded = true;
+        _projectList = await Projects.GetProjects();
     }
 }

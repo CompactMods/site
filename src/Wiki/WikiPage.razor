@@ -1,0 +1,132 @@
+﻿@page "/wiki/{project}/{*route}"
+@using Markdig
+@using Markdig.Prism
+@using Web.Services
+
+@inject ProjectsService Projects
+@inject WikiService Wiki
+
+<PageTitle>Wiki</PageTitle>
+
+@if (IsErrored)
+{
+    <p>There was an error loading this page. Please reload the page to try again, or <a href="/wiki">go back to the wiki root</a>.</p>
+    @if (!string.IsNullOrEmpty(CustomError))
+    {
+        <p><b>Error:</b> @CustomError</p>
+    }
+}
+else
+{
+    @if (IsLoading)
+    {
+        <p>Loading page, please wait...</p>
+    }
+    else
+    {
+        <div class="wiki-page">
+            <nav class="wiki-nav">
+                <ul>
+                    @foreach (var group in ProjectPages.GroupBy(x => x.Folder).OrderBy(g => g.Key))
+                    {
+                        @if (group.Key is null)
+                        {
+                            @foreach (var p in group.OrderBy(x => x.Slug))
+                            {
+                                <li><a href="/wiki/@Project/@p.Slug">@p.Title</a></li>
+                            }
+                        }
+                        else
+                        {
+                            <li>
+                                <span class="wiki-nav-folder">@group.Key</span>
+                                <ul>
+                                    @foreach (var p in group.OrderBy(x => x.Slug))
+                                    {
+                                        <li><a href="/wiki/@Project/@p.Slug">@p.Title</a></li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                    }
+                </ul>
+            </nav>
+
+            <main class="wiki-main">
+                @if (mdSource != null)
+                {
+                    <Web.Components.Markdown Content="@mdSource" />
+                }
+                else
+                {
+                    <p>Route not found; please check the URL and try again, or <a href="/wiki">go back to the wiki root</a>.</p>
+                }
+            </main>
+        </div>
+    }
+}
+
+@code {
+    [Parameter]
+    public string? Project { get; set; }
+
+    [Parameter]
+    public string? Route { get; set; }
+
+    public ICollection<WikiService.WikiPage> ProjectPages { get; set; } = Array.Empty<WikiService.WikiPage>();
+
+    public string? mdSource;
+
+    public bool IsErrored = false;
+    public bool IsLoading = true;
+    public string? CustomError;
+
+    private static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder()
+        .UseAdvancedExtensions()
+        .UsePrism()
+        .Build();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        IsErrored = false;
+        CustomError = null;
+        mdSource = null;
+
+        var route = string.IsNullOrWhiteSpace(Route) ? "home" : Route.TrimEnd('/');
+
+        if (string.IsNullOrEmpty(Project))
+        {
+            IsErrored = true;
+            IsLoading = false;
+            CustomError = "No project found.";
+            return;
+        }
+
+        var projList = await Projects.GetProjectSlugs();
+        var wikiProject = Wiki.GetProject(Project);
+        if (!projList.Contains(Project, StringComparer.InvariantCultureIgnoreCase) || wikiProject is null)
+        {
+            IsErrored = true;
+            IsLoading = false;
+            CustomError = $"No project with the slug '{Project}' was found. Check the URL and try again.";
+            return;
+        }
+
+        ProjectPages = wikiProject.Pages.Values;
+        if (wikiProject.Pages.TryGetValue(route, out var page))
+        {
+            var source = await Wiki.ReadPage(page);
+            if (source is null)
+            {
+                IsErrored = true;
+                CustomError = "Failed to load the requested page.";
+            }
+            else
+            {
+                mdSource = Markdig.Markdown.ToHtml(source, Pipeline);
+            }
+        }
+
+        IsLoading = false;
+    }
+}

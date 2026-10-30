@@ -26,3 +26,10 @@ nav.wiki-nav a {
   text-decoration: none;
   color: currentColor;
 }
+nav.wiki-nav li ul {
+  margin-top: 0.6em;
+  padding-left: 1em;
+}
+nav.wiki-nav .wiki-nav-folder {
+  font-weight: bold;
+}

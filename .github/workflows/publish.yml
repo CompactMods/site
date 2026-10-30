@@ -14,36 +14,14 @@ jobs:
 
     - uses: actions/checkout@v4
  
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v4.2.0
-
-    # Wiki files: Compact Machines
-    - uses: actions/checkout@v4
-      with:
-          repository: "compactmods/compactmachines.wiki"
-          path: "Web/wwwroot/wiki-pages/machines"
-    - run: rm -rf Web/wwwroot/wiki-pages/machines/.git
-    - run: node Web/wwwroot/wiki-pages/wiki-pages.js Web/wwwroot/wiki-pages/machines
-
-    # Wiki files: Compact Crafting
-    - uses: actions/checkout@v4
-      with:
-          repository: "compactmods/compactcrafting.wiki"
-          path: "Web/wwwroot/wiki-pages/crafting"
-    - run: rm -rf Web/wwwroot/wiki-pages/crafting/.git
-    - run: node Web/wwwroot/wiki-pages/wiki-pages.js Web/wwwroot/wiki-pages/crafting
-
-    # sets up .NET Core SDK 3.1
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v4.3.0
       with:
         dotnet-version: '10.0.x'
-    
 
-
-    # publishes Blazor project to the release-folder
+      # publishes Blazor project to the release-folder
     - name: Publish .NET Core Project
-      run: dotnet publish "Web\Web.csproj" -c Release -o release --nologo
+      run: dotnet publish src/Web.csproj -c Release -o release --nologo
     
     # changes the base-tag in index.html from '/' to 'BlazorGitHubPagesDemo' to match GitHub Pages repository subdirectory
     - name: Change base-tag in index.html from /
