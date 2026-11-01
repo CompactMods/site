@@ -1,0 +1,12 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+h1:focus {
+    outline: none;
+}
+
+img {
+    width: 100%;
+}

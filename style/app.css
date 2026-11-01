@@ -1,16 +1,8 @@
+@import "core.css";
 
 html, body {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --theme-primary: #085a78;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-}
-
-h1:focus {
-  outline: none;
 }
 
 a, .btn-link {
