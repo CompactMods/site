@@ -1,0 +1,48 @@
+@*
+    Divides its area into diagonal segments (one per child SectionalPanel).
+    Hovering or focusing a panel expands it and pushes its neighbours aside;
+    panels sweep in from the centre outward when first rendered.
+*@
+@using System.Globalization
+
+<div class="sectional-display @(Interactive ? null : "is-static") @(StackOnNarrow ? "stack-narrow" : null) @Class"
+     style="height: @Height; --slant: @Slant; --expand: @ExpandRatio.ToString(CultureInfo.InvariantCulture); --stagger: @Stagger;"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>The SectionalPanel components to display.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Horizontal offset between the top and bottom of each diagonal edge (any CSS length).</summary>
+    [Parameter]
+    public string Slant { get; set; } = "clamp(3rem, 10vw, 12rem)";
+
+    /// <summary>How much a hovered panel grows relative to its resting size.</summary>
+    [Parameter]
+    public double ExpandRatio { get; set; } = 1.8;
+
+    /// <summary>Delay between each step of the centre-outward intro sweep (any CSS time).</summary>
+    [Parameter]
+    public string Stagger { get; set; } = "60ms";
+
+    /// <summary>Height of the display (any CSS length). Fills its container by default.</summary>
+    [Parameter]
+    public string Height { get; set; } = "100%";
+
+    /// <summary>When false, panels do not respond to hover or focus.</summary>
+    [Parameter]
+    public bool Interactive { get; set; } = true;
+
+    /// <summary>When true, panels stack vertically on narrow screens instead of sharing the width.</summary>
+    [Parameter]
+    public bool StackOnNarrow { get; set; } = true;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+}

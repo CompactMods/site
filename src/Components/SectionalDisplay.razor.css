@@ -1,0 +1,17 @@
+.sectional-display {
+  --sectional-backdrop: #10232b;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--sectional-backdrop);
+  isolation: isolate;
+}
+
+@media (max-width: 640px) {
+  .sectional-display.stack-narrow {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+}

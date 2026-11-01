@@ -1,0 +1,43 @@
+@*
+    Loading indicator built on SectionalDisplay: diagonal segments sweep through on a loop.
+*@
+
+<div class="sectional-loader" style="height: @Height;">
+    <SectionalDisplay Interactive="false" StackOnNarrow="false" Slant="@Slant" Stagger="@Stagger" aria-hidden="true">
+        @foreach (var color in Colors)
+        {
+            <SectionalPanel BackgroundColor="@color" />
+        }
+    </SectionalDisplay>
+
+    <div class="sectional-loader-message" role="status">@Message</div>
+</div>
+
+@code {
+    public static readonly IReadOnlyList<string> DefaultColors =
+    [
+        "#063f55",
+        "#0b6f8f",
+        "#1a93b5",
+        "#0b6f8f",
+        "#063f55",
+    ];
+
+    /// <summary>Text announced and shown over the animation.</summary>
+    [Parameter]
+    public string Message { get; set; } = "Loading…";
+
+    /// <summary>One panel per colour.</summary>
+    [Parameter]
+    public IReadOnlyList<string> Colors { get; set; } = DefaultColors;
+
+    /// <summary>Height of the loader (any CSS length).</summary>
+    [Parameter]
+    public string Height { get; set; } = "100%";
+
+    [Parameter]
+    public string Slant { get; set; } = "clamp(2rem, 8vw, 8rem)";
+
+    [Parameter]
+    public string Stagger { get; set; } = "90ms";
+}

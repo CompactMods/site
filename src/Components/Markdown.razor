@@ -1,14 +1,33 @@
-﻿<div class="markdown">
+﻿<div class="markdown" @ref="container">
     @((MarkupString) Content)
 </div>
 
 @inject IJSRuntime JS
+@implements IAsyncDisposable
 @code {
     [Parameter]
     public string Content { get; set; }
 
+    private ElementReference container;
+    private IJSObjectReference? module;
+    private string? renderedContent;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await JS.InvokeVoidAsync("Prism.highlightAll");
+        if (Content == renderedContent)
+            return;
+
+        renderedContent = Content;
+        module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Markdown.razor.js");
+        await module.InvokeVoidAsync("render", container);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (module is not null)
+        {
+            try { await module.DisposeAsync(); }
+            catch (JSDisconnectedException) { }
+        }
     }
 }

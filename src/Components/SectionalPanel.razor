@@ -1,0 +1,75 @@
+@*
+    One diagonal segment of a SectionalDisplay. Must be a direct child of SectionalDisplay.
+*@
+@using System.Globalization
+
+<div class="sectional-panel @(BackgroundImage is null ? null : "has-image") @Class"
+     style="--weight: @Weight.ToString(CultureInfo.InvariantCulture); --panel-bg: @BackgroundColor; @(BackgroundImage is null ? null : $"--panel-image: url('{BackgroundImage}');")">
+    <div class="sectional-panel-fill">
+        @if (Art is not null)
+        {
+            <div class="sectional-panel-art">@Art</div>
+        }
+    </div>
+
+    @if (Route is not null)
+    {
+        <a class="sectional-panel-link" href="@Route" aria-label="@Title"></a>
+    }
+
+    @if (Title is not null || ChildContent is not null || Details is not null)
+    {
+        <div class="sectional-panel-content">
+            @if (Title is not null)
+            {
+                <h2 class="sectional-panel-title">@Title</h2>
+            }
+
+            @ChildContent
+
+            @if (Details is not null)
+            {
+                <div class="sectional-panel-details">
+                    <div class="sectional-panel-details-inner">@Details</div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>Heading shown at the bottom of the panel; also labels the panel link.</summary>
+    [Parameter]
+    public string? Title { get; set; }
+
+    /// <summary>When set, the whole panel links here.</summary>
+    [Parameter]
+    public string? Route { get; set; }
+
+    /// <summary>CSS background for the panel (colour, gradient or image).</summary>
+    [Parameter]
+    public string BackgroundColor { get; set; } = "var(--theme-primary)";
+
+    /// <summary>Background image URL; covers the panel over <see cref="BackgroundColor"/>.</summary>
+    [Parameter]
+    public string? BackgroundImage { get; set; }
+
+    /// <summary>Relative resting width compared to sibling panels.</summary>
+    [Parameter]
+    public double Weight { get; set; } = 1;
+
+    /// <summary>Always-visible content below the title.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Content revealed when the panel is hovered or focused. May contain its own links.</summary>
+    [Parameter]
+    public RenderFragment? Details { get; set; }
+
+    /// <summary>Decorative content centred in the panel background; scales up on hover.</summary>
+    [Parameter]
+    public RenderFragment? Art { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+}

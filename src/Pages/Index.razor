@@ -1,8 +1,57 @@
 @page "/"
+@layout FullBleedLayout
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Compact Mods</PageTitle>
 
-<div id="project-cards">
-    <CurseforgeCard Project="224218" />
-    <CurseforgeCard Project="429735" />
-</div>
+<SectionalDisplay aria-label="Compact Mods projects">
+    <SectionalPanel Title="Compact Machines" Route="machines"
+                    BackgroundColor="linear-gradient(160deg, #0f7896 0%, #085a78 55%, #063f55 100%)"
+                    BackgroundImage="media/promo-compact-machines.png">
+        <ChildContent>
+            <p class="panel-tagline">Building things in small places!</p>
+        </ChildContent>
+        <Art>
+            <img class="panel-art-pixel" src="personal-shrinking-device.png" alt="" />
+        </Art>
+        <Details>
+            <p>Build entire factories inside pocket dimensions, then carry them around as one tidy machine.</p>
+            <div class="panel-actions">
+                <a class="panel-button" href="https://www.curseforge.com/minecraft/mc-mods/compact-machines">Curseforge</a>
+                <a class="panel-button secondary" href="wiki/machines">Wiki</a>
+            </div>
+        </Details>
+    </SectionalPanel>
+
+    <SectionalPanel Title="Compact Crafting" Route="crafting"
+                    BackgroundColor="linear-gradient(160deg, #3d7a5a 0%, #2a5a43 55%, #1b3d2d 100%)"
+                    BackgroundImage="media/promo-crafting.png">
+        <ChildContent>
+            <p class="panel-tagline">Crafting just got smaller.</p>
+        </ChildContent>
+        <Art>
+            <span class="panel-art-icon"><i class="fa-solid fa-cubes"></i></span>
+        </Art>
+        <Details>
+            <p>Miniaturization recipes built from layered, in-world structures, definable with datapacks.</p>
+            <div class="panel-actions">
+                <a class="panel-button" href="https://www.curseforge.com/minecraft/mc-mods/compact-crafting">Curseforge</a>
+                <a class="panel-button secondary" href="wiki/crafting">Wiki</a>
+            </div>
+        </Details>
+    </SectionalPanel>
+
+    <SectionalPanel Title="Simple Honey" Route="honey"
+                    BackgroundColor="linear-gradient(160deg, #4a5a6a 0%, #34414e 55%, #232c35 100%)"
+                    BackgroundImage="media/promo-simple-honey.png">
+        <Art>
+            <span class="panel-art-icon">
+                <i class="fa-solid fa-droplet"></i>
+            </span>
+        </Art>
+        <Details>
+            <div class="panel-actions">
+                <a class="panel-button" href="https://www.curseforge.com/minecraft/mc-mods/simple-honey">Curseforge</a>
+            </div>
+        </Details>
+    </SectionalPanel>
+</SectionalDisplay>
