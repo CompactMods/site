@@ -4,7 +4,13 @@ let mermaidLoad;
 
 function loadMermaid() {
   mermaidLoad ??= import(MERMAID_URL).then(({ default: mermaid }) => {
-    mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "strict" });
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "strict",
+      // Blend edge labels into the wiki's dark content panel
+      themeVariables: { edgeLabelBackground: "#141d24" },
+    });
     return mermaid;
   });
   return mermaidLoad;

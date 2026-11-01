@@ -5,6 +5,7 @@
 
 @inject ProjectsService Projects
 @inject WikiService Wiki
+@inject NavigationManager Nav
 
 <PageTitle>Wiki</PageTitle>
 
@@ -24,33 +25,44 @@ else
     }
     else
     {
+        <header class="wiki-header">
+            <h1 class="wiki-title">@ProjectName</h1>
+
+            @if (WikiProject is { IsVersioned: true })
+            {
+                <label class="wiki-version">
+                    <span class="wiki-version-label">Version</span>
+                    <select class="wiki-version-select" value="@Version!.Slug" @onchange="OnVersionChanged">
+                        @foreach (var v in WikiProject.Versions)
+                        {
+                            <option value="@v.Slug">@v.Label</option>
+                        }
+                    </select>
+                </label>
+            }
+        </header>
+
         <div class="wiki-page">
-            <nav class="wiki-nav">
-                <ul>
-                    @foreach (var group in ProjectPages.GroupBy(x => x.Folder).OrderBy(g => g.Key))
-                    {
-                        @if (group.Key is null)
+            <aside class="wiki-sidebar">
+                @if (GlobalPages.Count > 0)
+                {
+                    <nav class="wiki-nav wiki-nav-global" aria-label="General pages">
+                        <span class="wiki-nav-heading">General</span>
+                        @PageList(GlobalPages)
+                    </nav>
+                }
+
+                @if (VersionPages.Count > 0)
+                {
+                    <nav class="wiki-nav" aria-label="@(Version!.Slug is null ? "Pages" : $"{Version.Name} pages")">
+                        @if (Version!.Slug is not null)
                         {
-                            @foreach (var p in group.OrderBy(x => x.Slug))
-                            {
-                                <li><a href="/wiki/@Project/@p.Slug">@p.Title</a></li>
-                            }
+                            <span class="wiki-nav-heading">@Version.Name</span>
                         }
-                        else
-                        {
-                            <li>
-                                <span class="wiki-nav-folder">@group.Key</span>
-                                <ul>
-                                    @foreach (var p in group.OrderBy(x => x.Slug))
-                                    {
-                                        <li><a href="/wiki/@Project/@p.Slug">@p.Title</a></li>
-                                    }
-                                </ul>
-                            </li>
-                        }
-                    }
-                </ul>
-            </nav>
+                        @PageList(VersionPages)
+                    </nav>
+                }
+            </aside>
 
             <main class="wiki-main">
                 @if (mdSource != null)
@@ -73,7 +85,13 @@ else
     [Parameter]
     public string? Route { get; set; }
 
-    public ICollection<WikiService.WikiPage> ProjectPages { get; set; } = Array.Empty<WikiService.WikiPage>();
+    public WikiService.WikiProject? WikiProject;
+    public WikiService.WikiVersion? Version;
+    public string? ProjectName;
+    public string PageSlug = "home";
+
+    public List<WikiService.WikiPage> GlobalPages = [];
+    public List<WikiService.WikiPage> VersionPages = [];
 
     public string? mdSource;
 
@@ -84,6 +102,7 @@ else
     private static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder()
         .UseAdvancedExtensions()
         .UsePrism()
+        .UseWikiLinks()
         .Build();
 
     protected override async Task OnParametersSetAsync()
@@ -102,9 +121,10 @@ else
             return;
         }
 
-        var projList = await Projects.GetProjectSlugs();
+        var projList = await Projects.GetProjects();
+        var projectInfo = projList.FirstOrDefault(p => string.Equals(p.Slug, Project, StringComparison.OrdinalIgnoreCase));
         var wikiProject = Wiki.GetProject(Project);
-        if (!projList.Contains(Project, StringComparer.InvariantCultureIgnoreCase) || wikiProject is null)
+        if (projectInfo.Slug is null || wikiProject is null)
         {
             IsErrored = true;
             IsLoading = false;
@@ -112,8 +132,32 @@ else
             return;
         }
 
-        ProjectPages = wikiProject.Pages.Values;
-        if (wikiProject.Pages.TryGetValue(route, out var page))
+        // Versioned routes are /wiki/{project}/{version}/{page}
+        var version = wikiProject.DefaultVersion;
+        if (wikiProject.IsVersioned)
+        {
+            var segments = route.Split('/', 2);
+            if (wikiProject.GetVersion(segments[0]) is { } routeVersion)
+            {
+                version = routeVersion;
+                route = segments.Length > 1 && !string.IsNullOrWhiteSpace(segments[1]) ? segments[1] : "home";
+            }
+            else
+            {
+                // No version in the URL (e.g. an older link): send it to the version that has the page
+                var target = wikiProject.FindVersionWithPage(route) ?? wikiProject.DefaultVersion;
+                Nav.NavigateTo(wikiProject.Url(target, route), replace: true);
+                return;
+            }
+        }
+
+        WikiProject = wikiProject;
+        Version = version;
+        ProjectName = projectInfo.Name;
+        PageSlug = route;
+        GlobalPages = version.Pages.Values.Where(p => p.IsGlobal).ToList();
+        VersionPages = version.Pages.Values.Where(p => !p.IsGlobal).ToList();
+        if (version.Pages.TryGetValue(route, out var page))
         {
             var source = await Wiki.ReadPage(page);
             if (source is null)
@@ -123,10 +167,46 @@ else
             }
             else
             {
-                mdSource = Markdig.Markdown.ToHtml(source, Pipeline);
+                var linkContext = WikiLinkExtension.CreateContext(target => wikiProject.ResolveLink(version, target));
+                mdSource = Markdig.Markdown.ToHtml(source, Pipeline, linkContext);
             }
         }
 
         IsLoading = false;
     }
+
+    private void OnVersionChanged(ChangeEventArgs e)
+    {
+        if (WikiProject?.GetVersion(e.Value as string ?? "") is not { } version)
+            return;
+
+        // Stay on the same page when the new version has it
+        var slug = version.Pages.ContainsKey(PageSlug) ? PageSlug : "home";
+        Nav.NavigateTo(WikiProject.Url(version, slug));
+    }
+
+    private RenderFragment PageList(IEnumerable<WikiService.WikiPage> pages) => @<ul>
+        @foreach (var group in pages.GroupBy(x => x.Folder).OrderBy(g => g.Key))
+        {
+            @if (group.Key is null)
+            {
+                @foreach (var p in group.OrderBy(x => x.Slug))
+                {
+                    <li><a href="@WikiProject!.Url(Version!, p.Slug)">@p.Title</a></li>
+                }
+            }
+            else
+            {
+                <li>
+                    <span class="wiki-nav-folder">@group.Key</span>
+                    <ul>
+                        @foreach (var p in group.OrderBy(x => x.Slug))
+                        {
+                            <li><a href="@WikiProject!.Url(Version!, p.Slug)">@p.Title</a></li>
+                        }
+                    </ul>
+                </li>
+            }
+        }
+    </ul>;
 }

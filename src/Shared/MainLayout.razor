@@ -1,9 +1,58 @@
 @inherits LayoutComponentBase
+@using Web.Services
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
-<NavMenu />
+<div class="page-backdrop" style="--backdrop-image: url('@((section ?? ModSections.Default).Image)')"></div>
 
-<main>
-    <div class="content px-4">
-        @Body
-    </div>
-</main>
+@* Page content scrolls inside main, which ends above the fixed hotbar so content never slides underneath it *@
+<div class="app-shell">
+    <NavMenu />
+
+    <main @ref="scrollRoot" data-scroll-root>
+        <div class="content px-4">
+            @Body
+        </div>
+    </main>
+</div>
+
+<Hotbar Current="section" />
+
+@code {
+    private ModSection? section;
+    private ElementReference scrollRoot;
+    private string? scrolledPath;
+    private IJSObjectReference? module;
+
+    // Body changes on every navigation, so this runs for each page
+    protected override void OnParametersSet()
+    {
+        section = ModSections.FromPath(Nav.ToBaseRelativePath(Nav.Uri));
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Blazor only resets the window's scroll position on navigation, so reset main's when the page changes
+        var path = new Uri(Nav.Uri).AbsolutePath;
+        if (path == scrolledPath)
+            return;
+
+        var isFirst = scrolledPath is null;
+        scrolledPath = path;
+        if (isFirst)
+            return;
+
+        module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/MainLayout.razor.js");
+        await module.InvokeVoidAsync("scrollToTop", scrollRoot);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (module is not null)
+        {
+            try { await module.DisposeAsync(); }
+            catch (JSDisconnectedException) { }
+        }
+    }
+}

@@ -1,0 +1,60 @@
+@page "/machines"
+@page "/crafting"
+@page "/honey"
+@using Web.Services
+@inject NavigationManager Nav
+@implements IDisposable
+
+@if (section is not null)
+{
+    <PageTitle>@section.Name</PageTitle>
+
+    <div class="section-panel">
+        <article class="section-hero">
+            <div class="section-copy">
+                <h1>@section.Name</h1>
+
+                @if (section.Tagline is not null)
+                {
+                    <p class="section-tagline">@section.Tagline</p>
+                }
+
+                @if (section.Description is not null)
+                {
+                    <p>@section.Description</p>
+                }
+
+                <div class="section-actions">
+                    @if (section.WikiProject is not null)
+                    {
+                        <a class="section-button" href="wiki/@section.WikiProject">Read the wiki</a>
+                    }
+                    <a class="section-button secondary" href="@section.Curseforge">Curseforge</a>
+                </div>
+            </div>
+
+            <img class="section-image" src="@section.Image" alt="" />
+        </article>
+    </div>
+}
+
+@code {
+    private ModSection? section;
+
+    protected override void OnInitialized()
+    {
+        // The three routes share this component and have no parameters, so moving between them only changes the URL
+        Nav.LocationChanged += OnLocationChanged;
+        UpdateSection();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        UpdateSection();
+        StateHasChanged();
+    }
+
+    private void UpdateSection() => section = ModSections.FromPath(Nav.ToBaseRelativePath(Nav.Uri));
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+}

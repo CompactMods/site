@@ -32,6 +32,8 @@
   <!-- Wiki pages: /docs is served as static files under /wiki-pages, and indexed at startup by WikiService -->
   <ItemGroup>
     <WikiDoc Include="..\docs\**\*.md" WikiPath="$([System.String]::Copy('%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" RelativePath="wiki-pages/%(WikiPath)" Visible="false" />
+    <!-- Version metadata is tiny and needed synchronously to build routes, so it's embedded rather than fetched -->
+    <EmbeddedResource Include="..\docs\versions.json" LogicalName="wiki-versions.json" Visible="false" />
   </ItemGroup>
 
   <Target Name="AddWikiStaticWebAssets" BeforeTargets="AssignTargetPaths" AfterTargets="ResolveProjectStaticWebAssets" Condition="'$(NoBuild)' != 'true'">

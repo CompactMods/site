@@ -1,0 +1,93 @@
+/* Dims and blurs the page backdrop behind the section so the copy stays readable */
+.section-panel {
+  --accent: #7fd3ee;
+
+  max-width: 76rem;
+  margin: 2rem auto 0;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 1rem;
+  background: rgb(10 18 24 / 0.72);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.35);
+  color: #f2f5f7;
+}
+
+.section-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.section-copy h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  line-height: 1.05;
+}
+
+.section-tagline {
+  margin: 0 0 1rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.section-button {
+  padding: 0.65rem 1.4rem;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  background: var(--accent);
+  color: #0a1218;
+  font-weight: 600;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.section-button:hover,
+.section-button:focus-visible {
+  background: transparent;
+  color: var(--accent);
+}
+
+.section-button.secondary {
+  border-color: rgb(255 255 255 / 0.7);
+  background: transparent;
+  color: white;
+}
+
+.section-button.secondary:hover,
+.section-button.secondary:focus-visible {
+  border-color: white;
+  background: white;
+  color: #0a1218;
+}
+
+.section-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.4);
+}
+
+@media (max-width: 800px) {
+  .section-hero {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .section-panel {
+    margin-top: 1rem;
+  }
+
+  .section-image {
+    order: -1;
+  }
+}

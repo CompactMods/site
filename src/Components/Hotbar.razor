@@ -1,0 +1,131 @@
+@*
+    Survival-style hotbar for jumping between site sections. Sections fill the slots from the left in ModSections order,
+    and community links sit in the last slots. Number keys 1-9 select a slot, and the XP bar tracks how far down the page
+    you've scrolled.
+*@
+@using Web.Services
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="hotbar-hud @(hovered is null ? null : "is-hovering")" @ref="hud">
+    @* One name label centred above the bar, as in game: the selected section's name flashes when it changes,
+       and a hovered or focused slot's name shows while it's active *@
+    <span class="hotbar-name is-flash" @key="flashKey" aria-hidden="true">@Current?.Name</span>
+    @if (hovered is not null)
+    {
+        <span class="hotbar-name is-hover" aria-hidden="true">@hovered.Name</span>
+    }
+
+    <div class="hotbar-xp" aria-hidden="true">
+        <div class="hotbar-xp-fill"></div>
+    </div>
+
+    <nav class="hotbar" aria-label="Sections and community links">
+        @for (var i = 0; i < SlotCount; i++)
+        {
+            var slot = Slots[i];
+            if (slot is null)
+            {
+                <span class="hotbar-slot is-empty"></span>
+                continue;
+            }
+
+            var selected = slot.Section is not null && slot.Section == Current;
+            <a class="hotbar-slot @(selected ? "is-selected" : null)" href="@slot.Href" data-slot="@(i + 1)"
+               aria-label="@slot.Name" aria-current="@(selected ? "page" : null)"
+               @onpointerenter="e => OnPointerEnter(e, slot)" @onpointerleave="() => hovered = null"
+               @onfocus="() => hovered = slot" @onblur="() => hovered = null">
+                <span class="hotbar-item">
+                    @if (slot.ItemImage is not null)
+                    {
+                        <img src="@slot.ItemImage" alt="" />
+                    }
+                    else
+                    {
+                        <span class="hotbar-icon" style="color: @slot.ItemColor"><i class="@slot.ItemIcon"></i></span>
+                    }
+                </span>
+            </a>
+        }
+    </nav>
+</div>
+
+@code {
+    private const int SlotCount = 9;
+
+    private static readonly Slot?[] Slots = BuildSlots();
+
+    /// <summary>The section being viewed; its slot is shown as selected.</summary>
+    [Parameter]
+    public ModSection? Current { get; set; }
+
+    private Slot? hovered;
+    private ModSection? flashedSection;
+    private int flashKey;
+
+    private ElementReference hud;
+    private IJSObjectReference? module;
+    private IJSObjectReference? behaviour;
+
+    protected override void OnParametersSet()
+    {
+        if (Current == flashedSection)
+            return;
+
+        // A new key recreates the flash label, restarting its animation
+        flashedSection = Current;
+        flashKey++;
+        hovered = null;
+    }
+
+    private void OnPointerEnter(PointerEventArgs e, Slot slot)
+    {
+        // Touch has no hover, and a tap would otherwise leave the name stuck on screen
+        if (e.PointerType != "touch")
+            hovered = slot;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        module = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Hotbar.razor.js");
+        behaviour = await module.InvokeAsync<IJSObjectReference>("init", hud);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (behaviour is not null)
+            {
+                await behaviour.InvokeVoidAsync("dispose");
+                await behaviour.DisposeAsync();
+            }
+
+            if (module is not null)
+                await module.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+
+    private static Slot?[] BuildSlots()
+    {
+        var slots = new Slot?[SlotCount];
+        for (var i = 0; i < ModSections.All.Length; i++)
+        {
+            var section = ModSections.All[i];
+            slots[i] = new Slot(section.Slug, section.Name, section.ItemImage, section.ItemIcon, section.ItemColor, section);
+        }
+
+        slots[7] = new Slot("https://discord.gg/abca3pDPvu", "Discord", null, "fa-brands fa-discord", "#7a85ff");
+        slots[8] = new Slot("https://github.com/compactmods", "GitHub", null, "fa-brands fa-github", "#f0f0f0");
+        return slots;
+    }
+
+    /// <param name="Section">The site section the slot opens, if any; used to show the slot as selected.</param>
+    private record Slot(string Href, string Name, string? ItemImage, string? ItemIcon, string? ItemColor, ModSection? Section = null);
+}

@@ -1,0 +1,154 @@
+.hotbar-hud {
+  --slot: 52px;
+  --grid: #9b9b9b;
+  --ring: #2c2c2c;
+  --selector: #dfe2da;
+
+  position: fixed;
+  left: 50%;
+  bottom: 0.75rem;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transform: translateX(-50%);
+  user-select: none;
+}
+
+.hotbar-xp {
+  height: 7px;
+  border: 1px solid #000;
+  background: #262626;
+}
+
+.hotbar-xp-fill {
+  width: calc(var(--xp, 0) * 100%);
+  height: 100%;
+  background: linear-gradient(#c6ff6e, #7ccf20 60%, #5aa316);
+  transition: width 0.15s linear;
+}
+
+.hotbar {
+  display: flex;
+  border: 2px solid #161616;
+  background: var(--grid);
+}
+
+.hotbar-slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--slot);
+  height: var(--slot);
+  border: 2px solid var(--grid);
+  /* Translucent well with a dark inner ring, so the page shows through as the world does in game */
+  background: rgb(52 52 44 / 0.72);
+  box-shadow: inset 0 0 0 2px var(--ring);
+  backdrop-filter: blur(3px);
+  color: white;
+}
+
+/* Opt out of the site nav's dimmed-link style */
+a.hotbar-slot {
+  opacity: 1;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+a.hotbar-slot:hover {
+  background: rgb(110 110 98 / 0.75);
+}
+
+a.hotbar-slot:focus-visible {
+  outline: 2px dashed white;
+  outline-offset: -6px;
+}
+
+/*
+  Selector: black outline, thick pale frame, dark inner line. It overhangs the bar above and below, with notched
+  pixel corners.
+*/
+.hotbar-slot.is-selected::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  z-index: 1;
+  border: 2px solid #111;
+  box-shadow: inset 0 0 0 4px var(--selector), inset 0 0 0 6px #4a4a46;
+  clip-path: polygon(
+    2px 0, calc(100% - 2px) 0, 100% 2px, 100% calc(100% - 2px),
+    calc(100% - 2px) 100%, 2px 100%, 0 calc(100% - 2px), 0 2px);
+  pointer-events: none;
+}
+
+.hotbar-item {
+  display: grid;
+  place-items: center;
+  width: 72%;
+  height: 72%;
+  transition: transform 0.15s;
+}
+
+a.hotbar-slot:hover .hotbar-item {
+  transform: scale(1.12);
+}
+
+.hotbar-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.hotbar-icon {
+  font-size: calc(var(--slot) * 0.5);
+  line-height: 1;
+  filter: drop-shadow(2px 2px 0 rgb(0 0 0 / 0.6));
+}
+
+/* Name label centred above the whole HUD, so it never runs off-screen on narrow layouts */
+.hotbar-name {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0.15rem 0.5rem;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: white;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-shadow: 2px 2px 0 #3a3a3a;
+  pointer-events: none;
+}
+
+.hotbar-name.is-flash {
+  opacity: 0;
+  animation: hotbar-name-flash 2.5s ease-in;
+}
+
+/* A hovered slot's name replaces the flash */
+.hotbar-hud.is-hovering .hotbar-name.is-flash {
+  visibility: hidden;
+}
+
+@keyframes hotbar-name-flash {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (max-width: 520px) {
+  .hotbar-hud {
+    --slot: 38px;
+    bottom: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hotbar-xp-fill,
+  .hotbar-item {
+    transition: none;
+  }
+}

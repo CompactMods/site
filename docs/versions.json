@@ -1,0 +1,11 @@
+{
+  "machines": {
+    "default": "cm7",
+    "versions": [
+      { "slug": "cm7", "name": "Compact Machines 7" },
+      { "slug": "cm5", "name": "Compact Machines 5" },
+      { "slug": "cm4", "name": "Compact Machines 4", "minecraft": "1.18" },
+      { "slug": "cm3", "name": "Compact Machines 3" }
+    ]
+  }
+}

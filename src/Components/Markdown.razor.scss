@@ -4,6 +4,10 @@
   background-color: #2d2d2d !important;
   padding: 1rem;
   border-radius: 0.5rem;
+  /* Long lines scroll sideways. Prism only sets this on highlighted blocks, so set it for plain ones too */
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.35) transparent;
 }
 
 .markdown ::deep table {
@@ -18,17 +22,17 @@
 
 .markdown ::deep :is(th, td) {
   padding: 0.5rem 0.85rem;
-  border: 1px solid #d8dee4;
+  border: 1px solid rgb(255 255 255 / 0.16);
   vertical-align: top;
 }
 
 .markdown ::deep th {
-  background-color: #f3f5f7;
+  background-color: rgb(255 255 255 / 0.08);
   font-weight: 600;
 }
 
 .markdown ::deep tbody tr:nth-child(even) {
-  background-color: #fafbfc;
+  background-color: rgb(255 255 255 / 0.03);
 }
 
 /* Mermaid diagrams render as SVG inside the original <pre> */
@@ -45,4 +49,30 @@
 
 .markdown ::deep pre.mermaid-source {
   color: #ccc;
+}
+
+/* Inline code, set off from prose on the dark wiki panel */
+.markdown ::deep :not(pre) > code {
+  padding: 0.1em 0.35em;
+  border-radius: 0.25rem;
+  background: rgb(255 255 255 / 0.1);
+}
+
+/* The site resets link styling globally; make links in prose recognisable again */
+.markdown ::deep a {
+  color: #7fd3ee;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+.markdown ::deep a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* [[Wiki links]] whose page doesn't exist */
+.markdown ::deep .wiki-link-missing {
+  color: #ff8a80;
+  text-decoration: underline dotted;
+  cursor: help;
 }

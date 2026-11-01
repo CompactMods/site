@@ -25,3 +25,35 @@ main {
         top: 0;
     }
 }
+
+/* Faded promo image for the current section, fixed behind all page content */
+.page-backdrop {
+  position: fixed;
+  inset: -8px;
+  z-index: -1;
+  background: var(--backdrop-image) center / cover no-repeat;
+  opacity: 0.6;
+  filter: grayscale(0.75) blur(2px);
+  pointer-events: none;
+}
+
+/*
+  Viewport-height column whose main area scrolls. --hotbar-clearance (set by the hotbar's script) is the space the
+  fixed hotbar takes from the bottom of the viewport; main stops 2rem above it.
+*/
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
+
+.app-shell main {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: calc(var(--hotbar-clearance, 0px) + 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Soften the cut-off edge above the hotbar */
+  mask-image: linear-gradient(to bottom, black calc(100% - 1.25rem), transparent);
+}
